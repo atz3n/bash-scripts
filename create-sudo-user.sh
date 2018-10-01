@@ -43,7 +43,7 @@ done
 ###################################################################################################
 # MAIN
 ###################################################################################################
-exit
+
 echo "[INFO] creating user ${USER_NAME} ..."
 adduser ${USER_NAME} --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
 

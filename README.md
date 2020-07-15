@@ -1,3 +1,4 @@
-# misc-server-scripts
+# bash-scripts
 
-repository for miscellaneous ubuntu server scripts
+repository for miscellaneous ubuntu bash scripts
+

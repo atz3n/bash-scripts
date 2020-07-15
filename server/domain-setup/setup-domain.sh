@@ -7,7 +7,33 @@
 USER_NAME="<sudo user name>"
 
 DOMAIN="<application domain>"
-APPLICATION_PORT=<application port>
+APPLICATION_PORT="<application port>"
+
+
+###################################################################################################
+# PARAMETER PARSING
+###################################################################################################
+
+while getopts "h?p:d:u:" opt; do
+    case "$opt" in
+    h)
+        echo "Parameter:"
+        echo "-d  <new application domain>"
+        echo "-p  <new application port>"
+        echo "-u  <sudo user name>"
+        exit 0
+        ;;
+    d)  
+        DOMAIN=$OPTARG
+        ;;
+    p)  
+        APPLICATION_PORT=$OPTARG
+        ;;
+    u)  
+        USER_NAME=$OPTARG
+        ;;
+    esac
+done
 
 
 ###################################################################################################

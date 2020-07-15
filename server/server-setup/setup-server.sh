@@ -8,7 +8,37 @@ DOMAIN="<server domain>"
 USER_NAME="<new sudo user name>"
 USER_PWD="<new sudo user password>"
 
-INSTALL_DOCKER=true
+INSTALL_DOCKER=false
+
+
+###################################################################################################
+# PARAMETER PARSING
+###################################################################################################
+
+while getopts "h?i?p:d:u:" opt; do
+    case "$opt" in
+    h)
+        echo "Parameter:"
+        echo "-d  <server domain>"
+        echo "-i  (install docker)"
+        echo "-p  <new sudo user password>"
+        echo "-u  <new sudo user name>"
+        exit 0
+        ;;
+    d)  
+        DOMAIN=$OPTARG
+        ;;
+    i)  
+        INSTALL_DOCKER=true
+        ;;
+    p)  
+        USER_PWD=$OPTARG
+        ;;
+    u)  
+        USER_NAME=$OPTARG
+        ;;
+    esac
+done
 
 
 ###################################################################################################

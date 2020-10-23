@@ -104,6 +104,11 @@ if [ ${INSTALL_DOCKER} == true ]; then
     sudo apt update
     sudo apt install -y docker-ce docker-ce-cli containerd.io
 
+
+    echo "" && echo "[INFO] installing docker-composes ..."
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+
 fi
 
 

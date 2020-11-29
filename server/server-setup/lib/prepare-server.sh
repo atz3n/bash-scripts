@@ -69,6 +69,58 @@ echo \"\" >> renew-certificate.log
 "
 
 
+SHOW_CERTIFICATES_SCRIPT_CONTENT="
+#!/bin/bash
+
+sudo certbot certificates
+"
+
+
+REMOVE_DOMAIN_SCRIPT_CONTENT="
+#!/bin/bash
+
+
+###################################################################################################
+# DEFAULT CONFIGURATION
+###################################################################################################
+
+DOMAIN=\"<domain to be removed>\"
+
+
+###################################################################################################
+# PARAMETER PARSING
+###################################################################################################
+
+while getopts \"h?d:\" opt; do
+    case \"\$opt\" in
+    h)
+        echo \"Parameter:\"
+        echo \"-d  domain to be removed\"
+        exit 0
+        ;;
+    d)
+        DOMAIN=\$OPTARG
+        ;;
+    esac
+done
+
+
+###################################################################################################
+# MAIN
+###################################################################################################
+
+echo \"[INFO] removing Let's Encrypt certificate ...\"
+sudo service nginx stop
+sudo certbot delete --cert-name \${DOMAIN}
+
+echo \"[INFO] removing nginx config ...\"
+sudo rm /etc/nginx/conf.d/\${DOMAIN}.conf
+sudo service nginx start
+
+echo \"[INFO] done. Domain \${DOMAIN} removed.\"
+"
+
+
 ###################################################################################################
 # MAIN
 ###################################################################################################
@@ -130,10 +182,19 @@ sudo apt update
 sudo apt install -y python-certbot-nginx
 
 
+echo "" && echo "[INFO] creating Let's Encrypt files ..."
+echo "${RENEW_CERTIFICATE_SCRIPT_CONTENT}" > /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
+sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
+
+echo "${SHOW_CERTIFICATES_SCRIPT_CONTENT}" > /home/${LOCAL_USER}/lets-encrypt/show-certificates.sh
+sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/show-certificates.sh
+
+echo "${REMOVE_DOMAIN_SCRIPT_CONTENT}" > /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
+sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
+
+
 echo "" && echo "[INFO] creating renew certificate job ..."
-echo "${RENEW_CERTIFICATE_SCRIPT_CONTENT}" > /home/${LOCAL_USER}/renew-certificate.sh
-sudo chmod 700 /home/${LOCAL_USER}/renew-certificate.sh
-(sudo crontab -l 2>> /dev/null; echo "${LETSENCRYPT_RENEW_EVENT}	/bin/bash /home/${LOCAL_USER}/renew-certificate.sh") | sudo crontab -
+(sudo crontab -l 2>> /dev/null; echo "${LETSENCRYPT_RENEW_EVENT}	/bin/bash /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh") | sudo crontab -
 
 
 echo "" && echo "[INFO] cleaning up ..."

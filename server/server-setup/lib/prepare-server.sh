@@ -183,6 +183,7 @@ sudo apt install -y python-certbot-nginx
 
 
 echo "" && echo "[INFO] creating Let's Encrypt files ..."
+mkdir /home/${LOCAL_USER}/lets-encrypt
 echo "${RENEW_CERTIFICATE_SCRIPT_CONTENT}" > /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
 sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
 

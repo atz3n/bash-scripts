@@ -177,9 +177,7 @@ sudo rm /etc/nginx/sites-enabled/default
 
 echo "" && echo "[INFO] installing Let's Encrypt certbot ..."
 sudo apt install -y software-properties-common
-sudo add-apt-repository -y ppa:certbot/certbot
-sudo apt update
-sudo apt install -y python-certbot-nginx
+sudo apt install -y python3-certbot-nginx
 
 
 echo "" && echo "[INFO] creating Let's Encrypt files ..."

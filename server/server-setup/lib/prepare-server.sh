@@ -42,7 +42,7 @@ done
 LOCAL_USER=$(whoami)
 
 
-PROFILE_LANGUAGE_VARIABLE="
+PROFILE_LANGUAGE="
 export LANGUAGE=\"en_US.UTF-8\"
 export LANG=\"en_US.UTF-8 \"
 export LC_ALL=\"en_US.UTF-8\"
@@ -50,7 +50,7 @@ export LC_CTYPE=\"en_US.UTF-8\"
 "
 
 
-UNATTENDED_UPGRADE_PERIODIC_CONFIG_FILE_CONTENT="
+UNATTENDED_UPGRADE_PERIODIC_CONFIG="
 APT::Periodic::Update-Package-Lists \"1\";
 APT::Periodic::Download-Upgradeable-Packages \"1\";
 APT::Periodic::Unattended-Upgrade \"1\";
@@ -58,7 +58,7 @@ APT::Periodic::AutocleanInterval \"1\";
 "
 
 
-RENEW_CERTIFICATE_SCRIPT_CONTENT="
+RENEW_CERTIFICATE_SCRIPT="
 #!/bin/bash
 
 echo \"[INFO] \$(date) ...\" > renew-certificate.log
@@ -69,14 +69,14 @@ echo \"\" >> renew-certificate.log
 "
 
 
-SHOW_CERTIFICATES_SCRIPT_CONTENT="
+SHOW_CERTIFICATES_SCRIPT="
 #!/bin/bash
 
 sudo certbot certificates
 "
 
 
-REMOVE_DOMAIN_SCRIPT_CONTENT="
+REMOVE_DOMAIN_SCRIPT="
 #!/bin/bash
 
 
@@ -126,7 +126,7 @@ echo \"[INFO] done. Domain \${DOMAIN} removed.\"
 ###################################################################################################
 
 echo "[INFO] setting language variables to solve location problems ..."
-echo "${PROFILE_LANGUAGE_VARIABLE}" >> ~/.profile
+echo "${PROFILE_LANGUAGE}" >> ~/.profile
 source ~/.profile
 
 
@@ -142,7 +142,6 @@ sudo service nginx stop
 
 
 if [ ${INSTALL_DOCKER} == true ]; then
-
     echo "" && echo "[INFO] installing docker ..."
     sudo apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
     
@@ -158,14 +157,13 @@ if [ ${INSTALL_DOCKER} == true ]; then
 
 
     echo "" && echo "[INFO] installing docker-composes ..."
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
-
 fi
 
 
 echo "" && echo "[INFO] enabling unattended-upgrade ..."
-echo "${UNATTENDED_UPGRADE_PERIODIC_CONFIG_FILE_CONTENT}" | sudo tee /etc/apt/apt.conf.d/10periodic > /dev/null
+echo "${UNATTENDED_UPGRADE_PERIODIC_CONFIG}" | sudo tee /etc/apt/apt.conf.d/10periodic > /dev/null
 
 
 echo "" && echo "[INFO] configuring nginx ..."
@@ -182,13 +180,13 @@ sudo apt install -y python3-certbot-nginx
 
 echo "" && echo "[INFO] creating Let's Encrypt files ..."
 mkdir /home/${LOCAL_USER}/lets-encrypt
-echo "${RENEW_CERTIFICATE_SCRIPT_CONTENT}" > /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
+echo "${RENEW_CERTIFICATE_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
 sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
 
-echo "${SHOW_CERTIFICATES_SCRIPT_CONTENT}" > /home/${LOCAL_USER}/lets-encrypt/show-certificates.sh
+echo "${SHOW_CERTIFICATES_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/show-certificates.sh
 sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/show-certificates.sh
 
-echo "${REMOVE_DOMAIN_SCRIPT_CONTENT}" > /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
+echo "${REMOVE_DOMAIN_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
 sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
 
 

@@ -39,7 +39,7 @@ done
 # DEFINES
 ###################################################################################################
 
-NGINX_LETS_ENCRYPT_GATEWAY_CONFIGURATION_FILE_CONTENT="
+NGINX_LETS_ENCRYPT_GATEWAY_CONFIG="
 server {
     server_name ${DOMAIN};
     listen 80;
@@ -53,7 +53,7 @@ server {
 "
 
 
-NGINX_LETS_ENCRYPT_GATEWAY_WITH_WEBSOCKET_CONFIGURATION_FILE_CONTENT="
+NGINX_LETS_ENCRYPT_GATEWAY_WITH_WEBSOCKET_CONFIG="
 server {
     server_name ${DOMAIN};
     listen 80;
@@ -80,9 +80,9 @@ echo "[INFO] creating gateway ..."
 sudo service nginx stop
 
 if [ ${ALLOW_WEBSOCKET} == true ]; then
-    echo "${NGINX_LETS_ENCRYPT_GATEWAY_WITH_WEBSOCKET_CONFIGURATION_FILE_CONTENT}" | sudo tee /etc/nginx/conf.d/${DOMAIN}.conf > /dev/null
+    echo "${NGINX_LETS_ENCRYPT_GATEWAY_WITH_WEBSOCKET_CONFIG}" | sudo tee /etc/nginx/conf.d/${DOMAIN}.conf > /dev/null
 else 
-    echo "${NGINX_LETS_ENCRYPT_GATEWAY_CONFIGURATION_FILE_CONTENT}" | sudo tee /etc/nginx/conf.d/${DOMAIN}.conf > /dev/null
+    echo "${NGINX_LETS_ENCRYPT_GATEWAY_CONFIG}" | sudo tee /etc/nginx/conf.d/${DOMAIN}.conf > /dev/null
 fi
 
 

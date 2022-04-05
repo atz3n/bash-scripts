@@ -16,7 +16,7 @@ ALLOW_WEBSOCKET=false
 while getopts "h?w?p:d:" opt; do
     case "$opt" in
     h)
-        echo "Parameter:"
+        echo "Parameter: [<value> / (flag)]"
         echo "-d  <new domain>"
         echo "-p  <new internal port mapping>"
         echo "-w  (allow websocket connection)"

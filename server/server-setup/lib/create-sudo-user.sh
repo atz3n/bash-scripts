@@ -27,9 +27,9 @@ while getopts "h?u:p:" opt; do
         echo ""
         echo "$(basename "$0") -u <user name> -p <passoword>"
         echo ""
-        echo "Parameter:"
-        echo "-u  user name"
-        echo "-p  password"
+        echo "Parameter: [<value> / (flag)]"
+        echo "-u  <user name>"
+        echo "-p  <password>"
         exit 0
         ;;
     u)  USER_NAME=$OPTARG

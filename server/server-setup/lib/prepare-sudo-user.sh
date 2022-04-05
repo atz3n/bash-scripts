@@ -23,11 +23,10 @@ DISABLE_PASSWORD_LOGIN=false
 while getopts "h?u:p:d:k:r?l?q?" opt; do
     case "$opt" in
     h|\?)
-        echo "Parameter:"
-        echo "-h  (help)"
-        echo "-u  user"
-        echo "-p  password"
-        echo "-d  domain"
+        echo "Parameter: [<value> / (flag)]"
+        echo "-u  <user>"
+        echo "-p  <password>"
+        echo "-d  <domain>"
         echo "-q  (disable password request)"
         echo "-r  (disable root login)"
         echo "-l  (disable password login)"

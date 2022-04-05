@@ -19,7 +19,7 @@ ALLOW_WEBSOCKET=false
 while getopts "h?w?p:d:u:" opt; do
     case "$opt" in
     h)
-        echo "Parameter:"
+        echo "Parameter: [<value> / (flag)]"
         echo "-d  <new application domain>"
         echo "-p  <new application port>"
         echo "-u  <sudo user name>"

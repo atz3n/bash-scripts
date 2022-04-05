@@ -8,25 +8,37 @@
 # DEFAULT CONFIGURATION
 ###################################################################################################
 
+INSTALL_LETSENCRYPT=false
 LETSENCRYPT_RENEW_EVENT="30 2	1 */1 *" # At 02:30 on day-of-month 1 in every month.
 
 INSTALL_DOCKER=false
 DOCKER_FINGERPRINT="9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+
+INSTALL_NGINX=false
 
 
 ###################################################################################################
 # PARAMETER PARSING
 ###################################################################################################
 
-while getopts "h?d?e:" opt; do
+while getopts "h?o?g?l?e:" opt; do
     case "$opt" in
     h)
-        echo "Parameter:"
-        echo "-e  lets encrypt renew event"
+        echo "Parameter: [<value> / (flag)]"
+        echo "-o  (install docker)"
+        echo "-g  (install nginx)"
+        echo "-l  (install let's encrypt)"
+        echo "-e  <let's encrypt renew event>"
         exit 0
         ;;
-    d)
+    o)
         INSTALL_DOCKER=true
+        ;;
+    g)  
+        INSTALL_NGINX=true
+        ;;
+    l)  
+        INSTALL_LETSENCRYPT=true
         ;;
     e)  
         LETSENCRYPT_RENEW_EVENT=$OPTARG
@@ -135,10 +147,21 @@ sudo apt update
 sudo apt install unattended-upgrades -y
 sudo unattended-upgrades --debug cat /var/log/unattended-upgrades/unattended-upgrades.log
 
+echo "" && echo "[INFO] enabling unattended-upgrade ..."
+echo "${UNATTENDED_UPGRADE_PERIODIC_CONFIG}" | sudo tee /etc/apt/apt.conf.d/10periodic > /dev/null
 
-echo "" && echo "[INFO] installing nginx ..."
-sudo apt install -y nginx
-sudo service nginx stop
+
+if [ ${INSTALL_NGINX} == true ] || [ ${INSTALL_LETSENCRYPT} == true ]; then
+    echo "" && echo "[INFO] installing nginx ..."
+    sudo apt install -y nginx
+    sudo service nginx stop
+
+    echo "" && echo "[INFO] configuring nginx ..."
+    sudo sed -i -e "s/# server_tokens off;/server_tokens off;/g" /etc/nginx/nginx.conf
+    sudo sed -i -e "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
+
+    sudo rm /etc/nginx/sites-enabled/default
+fi
 
 
 if [ ${INSTALL_DOCKER} == true ]; then
@@ -155,47 +178,34 @@ if [ ${INSTALL_DOCKER} == true ]; then
     sudo apt update
     sudo apt install -y docker-ce docker-ce-cli containerd.io
 
-
     echo "" && echo "[INFO] installing docker-composes ..."
     sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
 fi
 
 
-echo "" && echo "[INFO] enabling unattended-upgrade ..."
-echo "${UNATTENDED_UPGRADE_PERIODIC_CONFIG}" | sudo tee /etc/apt/apt.conf.d/10periodic > /dev/null
+if [ ${INSTALL_LETSENCRYPT} == true ]; then
+    echo "" && echo "[INFO] installing Let's Encrypt certbot ..."
+    sudo apt install -y software-properties-common
+    sudo apt install -y python3-certbot-nginx
 
+    echo "" && echo "[INFO] creating Let's Encrypt files ..."
+    mkdir /home/${LOCAL_USER}/lets-encrypt
+    echo "${RENEW_CERTIFICATE_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
+    sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
 
-echo "" && echo "[INFO] configuring nginx ..."
-sudo sed -i -e "s/# server_tokens off;/server_tokens off;/g" /etc/nginx/nginx.conf
-sudo sed -i -e "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
+    echo "${SHOW_CERTIFICATES_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/show-certificates.sh
+    sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/show-certificates.sh
 
-sudo rm /etc/nginx/sites-enabled/default
+    echo "${REMOVE_DOMAIN_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
+    sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
 
-
-echo "" && echo "[INFO] installing Let's Encrypt certbot ..."
-sudo apt install -y software-properties-common
-sudo apt install -y python3-certbot-nginx
-
-
-echo "" && echo "[INFO] creating Let's Encrypt files ..."
-mkdir /home/${LOCAL_USER}/lets-encrypt
-echo "${RENEW_CERTIFICATE_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
-sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
-
-echo "${SHOW_CERTIFICATES_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/show-certificates.sh
-sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/show-certificates.sh
-
-echo "${REMOVE_DOMAIN_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
-sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
-
-
-echo "" && echo "[INFO] creating renew certificate job ..."
-(sudo crontab -l 2>> /dev/null; echo "${LETSENCRYPT_RENEW_EVENT}	/bin/bash /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh") | sudo crontab -
+    echo "" && echo "[INFO] creating renew certificate job ..."
+    (sudo crontab -l 2>> /dev/null; echo "${LETSENCRYPT_RENEW_EVENT}	/bin/bash /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh") | sudo crontab -
+fi
 
 
 echo "" && echo "[INFO] cleaning up ..."
 sudo apt -y autoremove
-
 
 echo "" && echo "[INFO] server preparation done."

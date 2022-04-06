@@ -10,7 +10,7 @@ USER_PWD="<new sudo user password>"
 
 INSTALL_DOCKER=false
 INSTALL_NGINX=false
-INSTALL_LETSENCRYPT=true
+INSTALL_LETSENCRYPT=false
 
 
 ###################################################################################################

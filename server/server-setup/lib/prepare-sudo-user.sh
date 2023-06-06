@@ -17,6 +17,7 @@ DISABLE_PASSWORD_LOGIN=false
 
 SSH_PUB_KEY_NAME="id_rsa.pub"
 
+
 ###################################################################################################
 # PARAMETER PARSING
 ###################################################################################################
@@ -60,8 +61,8 @@ LIB_FOLDER_PATH="./lib"
 CREATE_SUDO_USER_SCRIPT_NAME="create-sudo-user.sh"
 
 CREATE_SUDO_USER_CMD="chmod 700 ${CREATE_SUDO_USER_SCRIPT_NAME} && ./${CREATE_SUDO_USER_SCRIPT_NAME} -u ${SUDO_USER_NAME} -p ${SUDO_USER_PWD}"
-DISABLE_ROOT_LOGIN_CMD='sed -i -e "s/PermitRootLogin yes/PermitRootLogin no/g" /etc/ssh/sshd_config'
-DISABLE_PASSWORD_LOGIN_CMD='sed -i -e "s/PasswordAuthentication yes/PasswordAuthentication no/g" /etc/ssh/sshd_config'
+DISABLE_ROOT_LOGIN_CMD='sed -i "1s/^/PermitRootLogin no\n/" /etc/ssh/sshd_config'
+DISABLE_PASSWORD_LOGIN_CMD='sed -i "1s/^/PasswordAuthentication no\n/" /etc/ssh/sshd_config'
 
 
 ###################################################################################################

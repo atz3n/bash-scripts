@@ -7,6 +7,7 @@
 DOMAIN="<server domain>"
 USER_NAME="<new sudo user name>"
 USER_PWD="<new sudo user password>"
+SSH_PUB_KEY_NAME="id_rsa.pub"
 
 INSTALL_DOCKER=false
 INSTALL_NGINX=false
@@ -59,7 +60,7 @@ done
 # MAIN
 ###################################################################################################
 
-./lib/prepare-sudo-user.sh -u ${USER_NAME} -p ${USER_PWD} -d ${DOMAIN} -r -q -l
+./lib/prepare-sudo-user.sh -u ${USER_NAME} -p ${USER_PWD} -d ${DOMAIN} -k ${SSH_PUB_KEY_NAME} -r -q -l
 
 PS_FLAGS=""
 if [ ${INSTALL_DOCKER} == true ]; then PS_FLAGS="-o"; fi

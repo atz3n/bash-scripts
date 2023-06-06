@@ -15,6 +15,7 @@ DISABLE_PASSWORD_REQUEST=false # for full automation
 DISABLE_ROOT_LOGIN=false
 DISABLE_PASSWORD_LOGIN=false
 
+SSH_PUB_KEY_NAME="id_rsa.pub"
 
 ###################################################################################################
 # PARAMETER PARSING
@@ -30,6 +31,7 @@ while getopts "h?u:p:d:k:r?l?q?" opt; do
         echo "-q  (disable password request)"
         echo "-r  (disable root login)"
         echo "-l  (disable password login)"
+        echo "-k  <ssh public key name>"
         exit 0
         ;;
     u)  SUDO_USER_NAME=$OPTARG
@@ -43,6 +45,8 @@ while getopts "h?u:p:d:k:r?l?q?" opt; do
     r)  DISABLE_ROOT_LOGIN=true
         ;;
     l)  DISABLE_PASSWORD_LOGIN=true
+        ;;
+    k)  SSH_PUB_KEY_NAME=$OPTARG
         ;;
     esac
 done
@@ -65,7 +69,7 @@ DISABLE_PASSWORD_LOGIN_CMD='sed -i -e "s/PasswordAuthentication yes/PasswordAuth
 ###################################################################################################
 
 echo "[INFO] getting ssh pubkey ..."
-SSH_PUB_KEY=$(cat ~/.ssh/id_rsa.pub)
+SSH_PUB_KEY=$(cat ~/.ssh/${SSH_PUB_KEY_NAME})
 
 
 echo "" && echo "[INFO] resetting server's ssh pubkey ..."

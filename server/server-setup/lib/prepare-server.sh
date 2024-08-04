@@ -144,7 +144,7 @@ source ~/.profile
 
 echo "" && echo "[INFO] updating system ..."
 sudo apt update
-sudo apt install unattended-upgrades -y
+sudo apt install -y unattended-upgrades
 sudo unattended-upgrades --debug cat /var/log/unattended-upgrades/unattended-upgrades.log
 
 echo "" && echo "[INFO] enabling unattended-upgrade ..."
@@ -166,21 +166,21 @@ fi
 
 if [ ${INSTALL_DOCKER} == true ]; then
     echo "" && echo "[INFO] installing docker ..."
-    sudo apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
-    
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-    if [[ ! $(sudo apt-key fingerprint ${DOCKER_FINGERPRINT}) ]]; then
-        echo "" && echo "[ERROR] Docker fingerprint missmatch!!"
-        exit 1
-    fi
 
-    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    sudo apt update
-    sudo apt install -y docker-ce docker-ce-cli containerd.io
+    for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt -y remove $pkg; done
 
-    echo "" && echo "[INFO] installing docker-composes ..."
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
+    # Add Docker's official GPG key:
+    sudo apt -y install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+    # Add the repository to Apt sources:
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt -y update
+
+    # Installing docker engine
+    sudo apt -y install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 fi
 
 

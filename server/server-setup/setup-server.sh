@@ -8,7 +8,7 @@ DOMAIN="<server domain>"
 USER_NAME="<new sudo user name>"
 USER_PWD="<new sudo user password>"
 
-# optional add your ssh public key to the know keys of the new sudo user.
+# Optional add your ssh public key to the know keys of the new sudo user.
 # The known public keys of the root account will be copied to the new sudo user automatically.
 # CAUTION: You cannot login to your server if no ssh pub key is known to the new sudo user!!!
 # SSH_PUB_KEY_NAME="id_rsa.pub"

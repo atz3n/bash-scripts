@@ -15,7 +15,7 @@ DISABLE_PASSWORD_REQUEST=false # for full automation
 DISABLE_ROOT_LOGIN=false
 DISABLE_PASSWORD_LOGIN=false
 
-SSH_PUB_KEY_NAME="id_rsa.pub"
+SSH_PUB_KEY_NAME=""
 
 
 ###################################################################################################
@@ -69,9 +69,10 @@ DISABLE_PASSWORD_LOGIN_CMD='sed -i "1s/^/PasswordAuthentication no\n/" /etc/ssh/
 # MAIN
 ###################################################################################################
 
-echo "[INFO] getting ssh pubkey ..."
-SSH_PUB_KEY=$(cat ~/.ssh/${SSH_PUB_KEY_NAME})
-
+if [ "${SSH_PUB_KEY_NAME}" != "" ]; then
+    echo "[INFO] getting ssh pubkey ..."
+    SSH_PUB_KEY=$(cat ~/.ssh/${SSH_PUB_KEY_NAME})
+fi
 
 echo "" && echo "[INFO] resetting server's ssh pubkey ..."
 SERVER_IP=$(dig +short ${DOMAIN})
@@ -101,8 +102,11 @@ fi
 
 SERVER_ACCESS_CMD="${SERVER_ACCESS_CMD}${CREATE_SUDO_USER_CMD}"
 
-ssh -t root@${DOMAIN} "echo ${SSH_PUB_KEY} >> .ssh/authorized_keys && ${SERVER_ACCESS_CMD}"
+if [ "${SSH_PUB_KEY}" != "" ]; then
+    ssh -t root@${DOMAIN} "echo ${SSH_PUB_KEY} >> .ssh/authorized_keys"
+fi
 
+ssh -t root@${DOMAIN} "${SERVER_ACCESS_CMD}"
 
 # disable password for full automation
 if [ ${DISABLE_PASSWORD_REQUEST} == true ]; then

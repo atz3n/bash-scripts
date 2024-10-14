@@ -60,7 +60,12 @@ done
 # MAIN
 ###################################################################################################
 
-./lib/prepare-sudo-user.sh -u ${USER_NAME} -p ${USER_PWD} -d ${DOMAIN} -k ${SSH_PUB_KEY_NAME} -r -q -l
+SSH_PUB_KEY_COMMAND=""
+if [ "${SSH_PUB_KEY_NAME}" != "" ]; then
+    SSH_PUB_KEY_COMMAND="-k ${SSH_PUB_KEY_NAME}"
+fi
+
+./lib/prepare-sudo-user.sh -u ${USER_NAME} -p ${USER_PWD} -d ${DOMAIN} ${SSH_PUB_KEY_COMMAND} -r -q -l
 
 PS_FLAGS=""
 if [ ${INSTALL_DOCKER} == true ]; then PS_FLAGS="-o"; fi

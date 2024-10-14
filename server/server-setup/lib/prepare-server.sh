@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# This script prepares a server on an ubuntu based system
+# This script prepares a server on an ubuntu/debian based system
 #
 
 ###################################################################################################
@@ -53,6 +53,9 @@ done
 
 LOCAL_USER=$(whoami)
 
+DISTRO=$(lsb_release -a | grep "Distributor ID")
+DISTRO=$(echo ${DISTRO} | sed 's/^Distributor ID: //')
+DISTRO="${DISTRO,,}"
 
 PROFILE_LANGUAGE="
 export LANGUAGE=\"en_US.UTF-8\"
@@ -61,14 +64,12 @@ export LC_ALL=\"en_US.UTF-8\"
 export LC_CTYPE=\"en_US.UTF-8\"
 "
 
-
 UNATTENDED_UPGRADE_PERIODIC_CONFIG="
 APT::Periodic::Update-Package-Lists \"1\";
 APT::Periodic::Download-Upgradeable-Packages \"1\";
 APT::Periodic::Unattended-Upgrade \"1\";
 APT::Periodic::AutocleanInterval \"1\";
 "
-
 
 RENEW_CERTIFICATE_SCRIPT="
 #!/bin/bash
@@ -80,13 +81,11 @@ certbot renew >> renew-certificate.log
 echo \"\" >> renew-certificate.log
 "
 
-
 SHOW_CERTIFICATES_SCRIPT="
 #!/bin/bash
 
 sudo certbot certificates
 "
-
 
 REMOVE_DOMAIN_SCRIPT="
 #!/bin/bash
@@ -172,11 +171,11 @@ if [ ${INSTALL_DOCKER} == true ]; then
     # Add Docker's official GPG key:
     sudo apt -y install ca-certificates curl
     sudo install -m 0755 -d /etc/apt/keyrings
-    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo curl -fsSL https://download.docker.com/linux/${DISTRO}/gpg -o /etc/apt/keyrings/docker.asc
     sudo chmod a+r /etc/apt/keyrings/docker.asc
 
     # Add the repository to Apt sources:
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/${DISTRO} $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
     sudo apt -y update
 
     # Installing docker engine

@@ -163,10 +163,10 @@ if [ ${INSTALL_NGINX} == true ] || [ ${INSTALL_LETSENCRYPT} == true ]; then
     sudo service nginx stop
 
     echo "" && echo "[INFO] configuring nginx ..."
-    sudo sed -i -e "s/# server_tokens off;/server_tokens off;/g" /etc/nginx/nginx.conf
-    sudo sed -i -e "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
-    sudo sed -i -e "s/include /etc/nginx/conf.d/*.conf;/include /etc/nginx/conf.d/*.http.conf;/g" /etc/nginx/nginx.conf
-    sudo echo "${STREAM_CONFIG}" >> /etc/nginx/nginx.conf
+    sudo sed -i -e "s|# server_tokens off;|server_tokens off;|g" /etc/nginx/nginx.conf
+    sudo sed -i -e "s|# server_names_hash_bucket_size 64;|server_names_hash_bucket_size 64;|g" /etc/nginx/nginx.conf
+    sudo sed -i -e "s|include /etc/nginx/conf.d/\*.conf;|include /etc/nginx/conf.d/\*.http.conf;|g" /etc/nginx/nginx.conf
+    echo "${STREAM_CONFIG}" | sudo tee -a /etc/nginx/nginx.conf > /dev/null
 
     sudo rm /etc/nginx/sites-enabled/default
 fi

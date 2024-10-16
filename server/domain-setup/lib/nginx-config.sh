@@ -80,9 +80,9 @@ echo "[INFO] creating gateway ..."
 sudo service nginx stop
 
 if [ ${ALLOW_WEBSOCKET} == true ]; then
-    echo "${NGINX_LETS_ENCRYPT_GATEWAY_WITH_WEBSOCKET_CONFIG}" | sudo tee /etc/nginx/conf.d/${DOMAIN}.conf > /dev/null
+    echo "${NGINX_LETS_ENCRYPT_GATEWAY_WITH_WEBSOCKET_CONFIG}" | sudo tee /etc/nginx/conf.d/${DOMAIN}.http.conf > /dev/null
 else 
-    echo "${NGINX_LETS_ENCRYPT_GATEWAY_CONFIG}" | sudo tee /etc/nginx/conf.d/${DOMAIN}.conf > /dev/null
+    echo "${NGINX_LETS_ENCRYPT_GATEWAY_CONFIG}" | sudo tee /etc/nginx/conf.d/${DOMAIN}.http.conf > /dev/null
 fi
 
 

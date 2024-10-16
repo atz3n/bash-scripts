@@ -125,10 +125,17 @@ sudo service nginx stop
 sudo certbot delete --cert-name \${DOMAIN}
 
 echo \"[INFO] removing nginx config ...\"
-sudo rm /etc/nginx/conf.d/\${DOMAIN}.conf
+sudo rm -f /etc/nginx/conf.d/\${DOMAIN}.http.conf
+sudo rm -f /etc/nginx/conf.d/\${DOMAIN}.stream.conf
 sudo service nginx start
 
 echo \"[INFO] done. Domain \${DOMAIN} removed.\"
+"
+
+STREAM_CONFIG="
+stream {
+        include /etc/nginx/conf.d/*.stream.conf;
+}
 "
 
 
@@ -152,12 +159,14 @@ echo "${UNATTENDED_UPGRADE_PERIODIC_CONFIG}" | sudo tee /etc/apt/apt.conf.d/10pe
 
 if [ ${INSTALL_NGINX} == true ] || [ ${INSTALL_LETSENCRYPT} == true ]; then
     echo "" && echo "[INFO] installing nginx ..."
-    sudo apt install -y nginx
+    sudo apt install -y nginx libnginx-mod-stream
     sudo service nginx stop
 
     echo "" && echo "[INFO] configuring nginx ..."
     sudo sed -i -e "s/# server_tokens off;/server_tokens off;/g" /etc/nginx/nginx.conf
     sudo sed -i -e "s/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 64;/g" /etc/nginx/nginx.conf
+    sudo sed -i -e "s/include /etc/nginx/conf.d/*.conf;/include /etc/nginx/conf.d/*.http.conf;/g" /etc/nginx/nginx.conf
+    sudo echo "${STREAM_CONFIG}" >> /etc/nginx/nginx.conf
 
     sudo rm /etc/nginx/sites-enabled/default
 fi

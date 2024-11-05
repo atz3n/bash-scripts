@@ -12,8 +12,6 @@ INSTALL_LETSENCRYPT=false
 LETSENCRYPT_RENEW_EVENT="30 2	1 */1 *" # At 02:30 on day-of-month 1 in every month.
 
 INSTALL_DOCKER=false
-DOCKER_FINGERPRINT="9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
-
 INSTALL_NGINX=false
 
 
@@ -120,7 +118,7 @@ done
 # MAIN
 ###################################################################################################
 
-echo \"[INFO] removing Let's Encrypt certificate ...\"
+echo \"[INFO] removing Let's Encrypt certificate...\"
 sudo service nginx stop
 sudo certbot delete --cert-name \${DOMAIN}
 
@@ -143,26 +141,26 @@ stream {
 # MAIN
 ###################################################################################################
 
-echo "[INFO] setting language variables to solve location problems ..."
+echo "[INFO] setting language variables to solve location problems..."
 echo "${PROFILE_LANGUAGE}" >> ~/.profile
 source ~/.profile
 
 
-echo "" && echo "[INFO] updating system ..."
+echo "" && echo "[INFO] updating system..."
 sudo apt update
 sudo apt install -y unattended-upgrades
 sudo unattended-upgrades --debug cat /var/log/unattended-upgrades/unattended-upgrades.log
 
-echo "" && echo "[INFO] enabling unattended-upgrade ..."
+echo "" && echo "[INFO] enabling unattended-upgrade..."
 echo "${UNATTENDED_UPGRADE_PERIODIC_CONFIG}" | sudo tee /etc/apt/apt.conf.d/10periodic > /dev/null
 
 
 if [ ${INSTALL_NGINX} == true ] || [ ${INSTALL_LETSENCRYPT} == true ]; then
-    echo "" && echo "[INFO] installing nginx ..."
+    echo "" && echo "[INFO] installing nginx..."
     sudo apt install -y nginx libnginx-mod-stream
     sudo service nginx stop
 
-    echo "" && echo "[INFO] configuring nginx ..."
+    echo "" && echo "[INFO] configuring nginx..."
     sudo sed -i -e "s|# server_tokens off;|server_tokens off;|g" /etc/nginx/nginx.conf
     sudo sed -i -e "s|# server_names_hash_bucket_size 64;|server_names_hash_bucket_size 64;|g" /etc/nginx/nginx.conf
     sudo sed -i -e "s|include /etc/nginx/conf.d/\*.conf;|include /etc/nginx/conf.d/\*.http.conf;|g" /etc/nginx/nginx.conf
@@ -173,7 +171,7 @@ fi
 
 
 if [ ${INSTALL_DOCKER} == true ]; then
-    echo "" && echo "[INFO] installing docker ..."
+    echo "" && echo "[INFO] installing docker..."
 
     for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt -y remove $pkg; done
 
@@ -193,11 +191,11 @@ fi
 
 
 if [ ${INSTALL_LETSENCRYPT} == true ]; then
-    echo "" && echo "[INFO] installing Let's Encrypt certbot ..."
+    echo "" && echo "[INFO] installing Let's Encrypt certbot..."
     sudo apt install -y software-properties-common
     sudo apt install -y python3-certbot-nginx
 
-    echo "" && echo "[INFO] creating Let's Encrypt files ..."
+    echo "" && echo "[INFO] creating Let's Encrypt files..."
     mkdir /home/${LOCAL_USER}/lets-encrypt
     echo "${RENEW_CERTIFICATE_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
     sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
@@ -208,12 +206,12 @@ if [ ${INSTALL_LETSENCRYPT} == true ]; then
     echo "${REMOVE_DOMAIN_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
     sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
 
-    echo "" && echo "[INFO] creating renew certificate job ..."
+    echo "" && echo "[INFO] creating renew certificate job..."
     (sudo crontab -l 2>> /dev/null; echo "${LETSENCRYPT_RENEW_EVENT}	/bin/bash /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh") | sudo crontab -
 fi
 
 
-echo "" && echo "[INFO] cleaning up ..."
+echo "" && echo "[INFO] cleaning up..."
 sudo apt -y autoremove
 
 echo "" && echo "[INFO] server preparation done."

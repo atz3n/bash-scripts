@@ -76,7 +76,7 @@ server {
 # MAIN
 ###################################################################################################
 
-echo "[INFO] creating gateway ..."
+echo "[INFO] creating gateway..."
 sudo service nginx stop
 
 if [ ${ALLOW_WEBSOCKET} == true ]; then
@@ -86,7 +86,7 @@ else
 fi
 
 
-echo "" && echo "[INFO] requesting Let's Encrypt certificate(s) ..."
+echo "" && echo "[INFO] requesting Let's Encrypt certificate(s)..."
 sudo service nginx start
 sudo certbot --nginx --agree-tos --register-unsafely-without-email --rsa-key-size 4096 --redirect -d ${DOMAIN}
 

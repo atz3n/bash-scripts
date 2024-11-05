@@ -70,11 +70,11 @@ DISABLE_PASSWORD_LOGIN_CMD='sed -i "1s/^/PasswordAuthentication no\n/" /etc/ssh/
 ###################################################################################################
 
 if [ "${SSH_PUB_KEY_NAME}" != "" ]; then
-    echo "[INFO] getting ssh pubkey ..."
+    echo "[INFO] getting ssh pubkey..."
     SSH_PUB_KEY=$(cat ~/.ssh/${SSH_PUB_KEY_NAME})
 fi
 
-echo "" && echo "[INFO] resetting server's ssh pubkey ..."
+echo "" && echo "[INFO] resetting server's ssh pubkey..."
 SERVER_IP=$(dig +short ${DOMAIN})
 
 if [ $(uname) == Darwin ]; then
@@ -86,11 +86,11 @@ else
 fi
 
 
-echo "" && echo "[INFO] copying sudo user script to server ..."
+echo "" && echo "[INFO] copying sudo user script to server..."
 scp ${LIB_FOLDER_PATH}/${CREATE_SUDO_USER_SCRIPT_NAME} root@${DOMAIN}:
 
 
-echo "" && echo "[INFO] creating new sudo user ..."
+echo "" && echo "[INFO] creating new sudo user..."
 SERVER_ACCESS_CMD=""
 
 if [ ${DISABLE_ROOT_LOGIN} == true ]; then 
@@ -110,6 +110,6 @@ ssh -t root@${DOMAIN} "${SERVER_ACCESS_CMD}"
 
 # disable password for full automation
 if [ ${DISABLE_PASSWORD_REQUEST} == true ]; then
-    echo "" && echo "[INFO] disabling sudo user password request ..."
+    echo "" && echo "[INFO] disabling sudo user password request..."
     ssh -t ${SUDO_USER_NAME}@${DOMAIN} "echo '${SUDO_USER_NAME} ALL=NOPASSWD: ALL' | sudo EDITOR='tee -a' visudo"
 fi

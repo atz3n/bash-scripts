@@ -80,5 +80,5 @@ scp ./lib/prepare-server.sh ${USER_NAME}@${DOMAIN}:
 ssh -t ${USER_NAME}@${DOMAIN} "./prepare-server.sh ${PS_FLAGS}"
 ssh -t ${USER_NAME}@${DOMAIN} "rm prepare-server.sh"
 
-echo "" && echo "[INFO] Done. Server set up. Rebooting now ..."
+echo "" && echo "[INFO] Done. Server set up. Rebooting now..."
 ssh -t ${USER_NAME}@${DOMAIN} "sudo reboot"

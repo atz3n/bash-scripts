@@ -72,9 +72,9 @@ APT::Periodic::AutocleanInterval \"1\";
 RENEW_CERTIFICATE_SCRIPT="
 #!/bin/bash
 
-echo \"[INFO] \$(date) ...\" > renew-certificate.log
+echo \"[INFO] \$(date)...\" > renew-certificate.log
 
-echo \"[INFO] renewing certificate ...\" >> renew-certificate.log
+echo \"[INFO] renewing certificate...\" >> renew-certificate.log
 certbot renew >> renew-certificate.log
 echo \"\" >> renew-certificate.log
 "
@@ -122,7 +122,7 @@ echo \"[INFO] removing Let's Encrypt certificate...\"
 sudo service nginx stop
 sudo certbot delete --cert-name \${DOMAIN}
 
-echo \"[INFO] removing nginx config ...\"
+echo \"[INFO] removing nginx config...\"
 sudo rm -f /etc/nginx/conf.d/\${DOMAIN}.http.conf
 sudo rm -f /etc/nginx/conf.d/\${DOMAIN}.stream.conf
 sudo service nginx start

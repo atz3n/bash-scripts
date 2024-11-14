@@ -4,7 +4,7 @@
 # CONFIGURATION
 ###################################################################################################
 
-USER_NAME="<sudo user name>"
+USER="<sudo user name>"
 
 DOMAIN="<application domain>"
 APPLICATION_PORT="<application port>"
@@ -16,29 +16,38 @@ ALLOW_WEBSOCKET=false
 # PARAMETER PARSING
 ###################################################################################################
 
-while getopts "h?w?p:d:u:" opt; do
-    case "$opt" in
-    h)
-        echo "Parameter: [<value> / (flag)]"
-        echo "-d  <new application domain>"
-        echo "-p  <new application port>"
-        echo "-u  <sudo user name>"
-        echo "-w  (allow websocket connection)"
-        exit 0
-        ;;
-    d)  
-        DOMAIN=$OPTARG
-        ;;
-    p)  
-        APPLICATION_PORT=$OPTARG
-        ;;
-    u)  
-        USER_NAME=$OPTARG
-        ;;
-    w)  
-        ALLOW_WEBSOCKET=true
-        ;;
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            echo "Parameter: [<value> / (flag)]"
+            echo "-d or --domain  <new application domain>"
+            echo "-p or --port  <new application port>"
+            echo "-u or --user  <sudo user name>"
+            echo "-w or --allow-websocket  (allow websocket connection)"
+            exit 0
+            ;;
+        -w|--allow-websocket)
+            ALLOW_WEBSOCKET=true
+            ;;
+        -d|--domain)
+            DOMAIN+=($2)
+            shift 
+            ;;
+        -p|--port)
+            APPLICATION_PORT+=($2)
+            shift 
+            ;;
+        -u|--user)
+            USER+=($2)
+            shift 
+            ;;
+        *)
+            echo "Unknown parameter passed: $1"
+            echo "Run with -h or --help for more info"
+            exit 1
+            ;;
     esac
+    shift
 done
 
 
@@ -55,11 +64,11 @@ HERE="$(pwd)/$(dirname $0)"
 
 cd ${HERE}
 
-WF=""
-if [ ${ALLOW_WEBSOCKET} == true ]; then WF="-w"; fi
+WEBSOCKET_FLAG=""
+if [ ${ALLOW_WEBSOCKET} == true ]; then WEBSOCKET_FLAG="-w"; fi
 
-scp ./lib/nginx-config.sh ${USER_NAME}@${DOMAIN}:
-ssh -t ${USER_NAME}@${DOMAIN} "./nginx-config.sh -d ${DOMAIN} -p ${APPLICATION_PORT} ${WF}"
-ssh -t ${USER_NAME}@${DOMAIN} "rm nginx-config.sh"
+scp ./lib/nginx-config.sh ${USER}@${DOMAIN}:
+ssh -t ${USER}@${DOMAIN} "./nginx-config.sh -d ${DOMAIN} -p ${APPLICATION_PORT} ${WEBSOCKET_FLAG}"
+ssh -t ${USER}@${DOMAIN} "rm nginx-config.sh"
 
 echo "" && echo "[INFO] Done. Domain set up."

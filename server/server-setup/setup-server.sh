@@ -5,8 +5,8 @@
 ###################################################################################################
 
 DOMAIN="<server domain>"
-USER_NAME="<new sudo user name>"
-USER_PWD="<new sudo user password>"
+USER="<new sudo user name>"
+PASSWORD="<new sudo user password>"
 
 # Optional add your ssh public key to the know keys of the new sudo user.
 # The known public keys of the root account will be copied to the new sudo user automatically.
@@ -22,37 +22,46 @@ INSTALL_LETSENCRYPT=false
 # PARAMETER PARSING
 ###################################################################################################
 
-while getopts "h?o?g?l?p:d:u:" opt; do
-    case "$opt" in
-    h)
-        echo "Parameter: [<value> / (flag)]"
-        echo "-d  <server domain>"
-        echo "-p  <new sudo user password>"
-        echo "-u  <new sudo user name>"
-        echo "-o  (install docker)"
-        echo "-g  (install nginx)"
-        echo "-l  (install let's encrypt)"
-        exit 0
-        ;;
-    d)  
-        DOMAIN=$OPTARG
-        ;;
-    p)  
-        USER_PWD=$OPTARG
-        ;;
-    u)  
-        USER_NAME=$OPTARG
-        ;;
-    o)  
-        INSTALL_DOCKER=true
-        ;;
-    g)  
-        INSTALL_NGINX=true
-        ;;
-    l)  
-        INSTALL_LETSENCRYPT=true
-        ;;
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            echo "Parameter: [<value> / (flag)]"
+            echo "-d or --domain  <server domain>"
+            echo "-p or --password  <new sudo user password>"
+            echo "-u or --user  <new sudo user name>"
+            echo "-o or --install-docker  (install docker)"
+            echo "-g or --install-nginx  (install nginx)"
+            echo "-l or --install-letsencrypt  (install let's encrypt)"
+            exit 0
+            ;;
+        -o|--install-docker)
+            INSTALL_DOCKER=true
+            ;;
+        -g|--install-nginx)
+            INSTALL_NGINX=true
+            ;;
+        -l|--install-letsencrypt)
+            INSTALL_LETSENCRYPT=true
+            ;;
+        -d|--domain)
+            DOMAIN+=($2)
+            shift 
+            ;;
+        -p|--password)
+            PASSWORD+=($2)
+            shift 
+            ;;
+        -u|--user)
+            USER+=($2)
+            shift 
+            ;;
+        *)
+            echo "Unknown parameter passed: $1"
+            echo "Run with -h or --help for more info"
+            exit 1
+            ;;
     esac
+    shift
 done
 
 
@@ -74,16 +83,16 @@ if [ "${SSH_PUB_KEY_NAME}" != "" ]; then
     SSH_PUB_KEY_COMMAND="-k ${SSH_PUB_KEY_NAME}"
 fi
 
-./lib/prepare-sudo-user.sh -u ${USER_NAME} -p ${USER_PWD} -d ${DOMAIN} ${SSH_PUB_KEY_COMMAND} -r -q -l
+./lib/prepare-sudo-user.sh -u ${USER} -p ${PASSWORD} -d ${DOMAIN} ${SSH_PUB_KEY_COMMAND} -r -q -l
 
-PS_FLAGS=""
-if [ ${INSTALL_DOCKER} == true ]; then PS_FLAGS="-o"; fi
-if [ ${INSTALL_NGINX} == true ]; then PS_FLAGS="${PS_FLAGS} -g"; fi
-if [ ${INSTALL_LETSENCRYPT} == true ]; then PS_FLAGS="${PS_FLAGS} -l"; fi
+PREPARE_SERVER_FLAGS=""
+if [ ${INSTALL_DOCKER} == true ]; then PREPARE_SERVER_FLAGS="-o"; fi
+if [ ${INSTALL_NGINX} == true ]; then PREPARE_SERVER_FLAGS="${PREPARE_SERVER_FLAGS} -g"; fi
+if [ ${INSTALL_LETSENCRYPT} == true ]; then PREPARE_SERVER_FLAGS="${PREPARE_SERVER_FLAGS} -l"; fi
 
-scp ./lib/prepare-server.sh ${USER_NAME}@${DOMAIN}:
-ssh -t ${USER_NAME}@${DOMAIN} "./prepare-server.sh ${PS_FLAGS}"
-ssh -t ${USER_NAME}@${DOMAIN} "rm prepare-server.sh"
+scp ./lib/prepare-server.sh ${USER}@${DOMAIN}:
+ssh -t ${USER}@${DOMAIN} "./prepare-server.sh ${PREPARE_SERVER_FLAGS}"
+ssh -t ${USER}@${DOMAIN} "rm prepare-server.sh"
 
 echo "" && echo "[INFO] Done. Server set up. Rebooting now..."
-ssh -t ${USER_NAME}@${DOMAIN} "sudo reboot"
+ssh -t ${USER}@${DOMAIN} "sudo reboot"

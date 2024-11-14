@@ -30,15 +30,15 @@ while [[ "$#" -gt 0 ]]; do
             ALLOW_WEBSOCKET=true
             ;;
         -d|--domain)
-            DOMAIN+=($2)
+            DOMAIN=$2
             shift 
             ;;
         -p|--port)
-            APPLICATION_PORT+=($2)
+            APPLICATION_PORT=$2
             shift 
             ;;
         -u|--user)
-            USER+=($2)
+            USER=$2
             shift 
             ;;
         *)

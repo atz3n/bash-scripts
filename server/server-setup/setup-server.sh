@@ -44,15 +44,15 @@ while [[ "$#" -gt 0 ]]; do
             INSTALL_LETSENCRYPT=true
             ;;
         -d|--domain)
-            DOMAIN+=($2)
+            DOMAIN=$2
             shift 
             ;;
         -p|--password)
-            PASSWORD+=($2)
+            PASSWORD=$2
             shift 
             ;;
         -u|--user)
-            USER+=($2)
+            USER=$2
             shift 
             ;;
         *)

@@ -164,11 +164,10 @@ if [ ${INSTALL_NGINX} == true ] || [ ${INSTALL_LETSENCRYPT} == true ]; then
     sudo sed -i -e "s|# server_tokens off;|server_tokens off;|g" /etc/nginx/nginx.conf
     sudo sed -i -e "s|# server_names_hash_bucket_size 64;|server_names_hash_bucket_size 64;|g" /etc/nginx/nginx.conf
     sudo sed -i -e "s|include /etc/nginx/conf.d/\*.conf;|include /etc/nginx/conf.d/\*.http.conf;|g" /etc/nginx/nginx.conf
+    sudo sed -i -e "s|include /etc/nginx/sites-enabled/\*;|# include /etc/nginx/sites-enabled/\*;|g" /etc/nginx/nginx.conf
     if ! grep -q "stream {" /etc/nginx/nginx.conf; then
         echo "${STREAM_CONFIG}" | sudo tee -a /etc/nginx/nginx.conf > /dev/null
     fi
-
-    sudo rm /etc/nginx/sites-enabled/default
 fi
 
 
@@ -198,7 +197,7 @@ if [ ${INSTALL_LETSENCRYPT} == true ]; then
     sudo apt install -y python3-certbot-nginx
 
     echo "" && echo "[INFO] creating Let's Encrypt files..."
-    mkdir /home/${LOCAL_USER}/lets-encrypt
+    mkdir -p /home/${LOCAL_USER}/lets-encrypt
     echo "${RENEW_CERTIFICATE_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
     sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh
 
@@ -208,8 +207,10 @@ if [ ${INSTALL_LETSENCRYPT} == true ]; then
     echo "${REMOVE_DOMAIN_SCRIPT}" > /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
     sudo chmod 700 /home/${LOCAL_USER}/lets-encrypt/remove-domain.sh
 
-    echo "" && echo "[INFO] creating renew certificate job..."
-    (sudo crontab -l 2>> /dev/null; echo "${LETSENCRYPT_RENEW_EVENT}	/bin/bash /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh") | sudo crontab -
+    if [ -z "$(sudo crontab -l | grep renew-certificate.sh)" ]; then
+        echo "" && echo "[INFO] creating renew certificate job..."
+        (sudo crontab -l 2>> /dev/null; echo "${LETSENCRYPT_RENEW_EVENT}	/bin/bash /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh") | sudo crontab -
+    fi
 fi
 
 

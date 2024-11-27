@@ -16,6 +16,7 @@ PASSWORD="<new sudo user password>"
 INSTALL_DOCKER=false
 INSTALL_NGINX=false
 INSTALL_LETSENCRYPT=false
+SKIP_SUDO_USER=false
 
 
 ###################################################################################################
@@ -32,6 +33,7 @@ while [[ "$#" -gt 0 ]]; do
             echo "-o or --install-docker  (install docker)"
             echo "-g or --install-nginx  (install nginx)"
             echo "-l or --install-letsencrypt  (install let's encrypt)"
+            echo "-s or --skip-sudo-user  (skips the creation of new sudo user)"
             exit 0
             ;;
         -o|--install-docker)
@@ -53,6 +55,10 @@ while [[ "$#" -gt 0 ]]; do
             ;;
         -u|--user)
             USER=$2
+            shift 
+            ;;
+        -s|--skip-sudo-user)
+            SKIP_SUDO_USER=true
             shift 
             ;;
         *)
@@ -78,12 +84,13 @@ HERE="$(pwd)/$(dirname $0)"
 
 cd ${HERE}
 
-SSH_PUB_KEY_COMMAND=""
-if [ "${SSH_PUB_KEY_NAME}" != "" ]; then
-    SSH_PUB_KEY_COMMAND="-k ${SSH_PUB_KEY_NAME}"
+if [ ${SKIP_SUDO_USER} == false ]; then
+    SSH_PUB_KEY_COMMAND=""
+    if [ "${SSH_PUB_KEY_NAME}" != "" ]; then
+        SSH_PUB_KEY_COMMAND="-k ${SSH_PUB_KEY_NAME}"
+    fi
+    ./lib/prepare-sudo-user.sh -u ${USER} -p ${PASSWORD} -d ${DOMAIN} ${SSH_PUB_KEY_COMMAND} -r -q -l
 fi
-
-./lib/prepare-sudo-user.sh -u ${USER} -p ${PASSWORD} -d ${DOMAIN} ${SSH_PUB_KEY_COMMAND} -r -q -l
 
 PREPARE_SERVER_FLAGS=""
 if [ ${INSTALL_DOCKER} == true ]; then PREPARE_SERVER_FLAGS="-o"; fi

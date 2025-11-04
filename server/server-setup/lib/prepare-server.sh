@@ -14,18 +14,21 @@ LETSENCRYPT_RENEW_EVENT="30 2	1 */1 *" # At 02:30 on day-of-month 1 in every mon
 INSTALL_DOCKER=false
 INSTALL_NGINX=false
 
+UPDATE_LOCALE_LANGUAGE=false
+
 
 ###################################################################################################
 # PARAMETER PARSING
 ###################################################################################################
 
-while getopts "h?o?g?l?e:" opt; do
+while getopts "h?o?g?l?c?e:" opt; do
     case "$opt" in
     h)
         echo "Parameter: [<value> / (flag)]"
         echo "-o  (install docker)"
         echo "-g  (install nginx)"
         echo "-l  (install let's encrypt)"
+        echo "-c  (update local profile language)"
         echo "-e  <let's encrypt renew event>"
         exit 0
         ;;
@@ -37,6 +40,9 @@ while getopts "h?o?g?l?e:" opt; do
         ;;
     l)  
         INSTALL_LETSENCRYPT=true
+        ;;
+    c)  
+        UPDATE_LOCALE_LANGUAGE=true
         ;;
     e)  
         LETSENCRYPT_RENEW_EVENT=$OPTARG
@@ -141,9 +147,11 @@ stream {
 # MAIN
 ###################################################################################################
 
-echo "[INFO] setting language variables to solve location problems..."
-echo "${PROFILE_LANGUAGE}" >> ~/.profile
-source ~/.profile
+if [ ${UPDATE_LOCALE_LANGUAGE} == true ]; then
+    echo "[INFO] setting language variables to solve location problems..."
+    echo "${PROFILE_LANGUAGE}" >> ~/.profile
+    source ~/.profile
+fi
 
 
 echo "" && echo "[INFO] updating system..."
@@ -174,7 +182,7 @@ fi
 if [ ${INSTALL_DOCKER} == true ]; then
     echo "" && echo "[INFO] installing docker..."
 
-    for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt -y remove $pkg; done
+    for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do sudo apt -y remove $pkg; done
 
     # Add Docker's official GPG key:
     sudo apt -y install ca-certificates curl

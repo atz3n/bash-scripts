@@ -17,6 +17,7 @@ INSTALL_DOCKER=false
 INSTALL_NGINX=false
 INSTALL_LETSENCRYPT=false
 SKIP_SUDO_USER=false
+UPDATE_LOCALE_LANGUAGE=false
 
 
 ###################################################################################################
@@ -34,6 +35,7 @@ while [[ "$#" -gt 0 ]]; do
             echo "-g or --install-nginx  (install nginx)"
             echo "-l or --install-letsencrypt  (install let's encrypt)"
             echo "-s or --skip-sudo-user  (skips the creation of new sudo user)"
+            echo "-c or --update-local-language  (updates the profile language)"
             exit 0
             ;;
         -o|--install-docker)
@@ -59,6 +61,10 @@ while [[ "$#" -gt 0 ]]; do
             ;;
         -s|--skip-sudo-user)
             SKIP_SUDO_USER=true
+            shift 
+            ;;
+        -c|--update-local-language)
+            UPDATE_LOCALE_LANGUAGE=true
             shift 
             ;;
         *)
@@ -96,6 +102,7 @@ PREPARE_SERVER_FLAGS=""
 if [ ${INSTALL_DOCKER} == true ]; then PREPARE_SERVER_FLAGS="-o"; fi
 if [ ${INSTALL_NGINX} == true ]; then PREPARE_SERVER_FLAGS="${PREPARE_SERVER_FLAGS} -g"; fi
 if [ ${INSTALL_LETSENCRYPT} == true ]; then PREPARE_SERVER_FLAGS="${PREPARE_SERVER_FLAGS} -l"; fi
+if [ ${UPDATE_LOCALE_LANGUAGE} == true ]; then PREPARE_SERVER_FLAGS="${PREPARE_SERVER_FLAGS} -c"; fi
 
 scp ./lib/prepare-server.sh ${USER}@${DOMAIN}:
 ssh -t ${USER}@${DOMAIN} "./prepare-server.sh ${PREPARE_SERVER_FLAGS}"

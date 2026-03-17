@@ -217,6 +217,9 @@ if [ ${INSTALL_LETSENCRYPT} == true ]; then
 
     if [ -z "$(sudo crontab -l | grep renew-certificate.sh)" ]; then
         echo "" && echo "[INFO] creating renew certificate job..."
+        if sudo systemctl status certbot.timer > /dev/null 2>&1; then
+            sudo systemctl disable certbot.timer
+        fi
         (sudo crontab -l 2>> /dev/null; echo "${LETSENCRYPT_RENEW_EVENT}	/bin/bash /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh") | sudo crontab -
     fi
 fi

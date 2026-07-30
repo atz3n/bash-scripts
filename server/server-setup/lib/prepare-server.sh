@@ -9,7 +9,7 @@
 ###################################################################################################
 
 INSTALL_LETSENCRYPT=false
-LETSENCRYPT_RENEW_EVENT="30 2	1 */1 *" # At 02:30 on day-of-month 1 in every month.
+LETSENCRYPT_RENEW_EVENT="30 2 */1 * *" # At 02:30 on every day-of-month.
 
 INSTALL_DOCKER=false
 INSTALL_NGINX=false

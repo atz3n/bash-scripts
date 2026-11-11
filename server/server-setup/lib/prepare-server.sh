@@ -220,6 +220,13 @@ if [ ${INSTALL_LETSENCRYPT} == true ]; then
         if sudo systemctl status certbot.timer > /dev/null 2>&1; then
             sudo systemctl disable certbot.timer
         fi
+        # Cron runs user-crontab jobs with the default PATH=/usr/bin:/bin, but
+        # nginx lives in /usr/sbin. Without an explicit PATH, certbot's nginx
+        # plugin fails on every real renewal attempt with "Could not find a
+        # usable 'nginx' binary" and the certificate silently expires.
+        if ! sudo crontab -l 2> /dev/null | grep -q "^PATH="; then
+            (echo "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"; sudo crontab -l 2> /dev/null) | sudo crontab -
+        fi
         (sudo crontab -l 2>> /dev/null; echo "${LETSENCRYPT_RENEW_EVENT}	/bin/bash /home/${LOCAL_USER}/lets-encrypt/renew-certificate.sh") | sudo crontab -
     fi
 fi
